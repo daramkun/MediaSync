@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">MediaSync</string>
+
+    <string name="text_host">Host</string>
+    <string name="text_username">Username</string>
+    <string name="text_password">Password</string>
+
+    <string name="texthint_host">Web Host</string>
+    <string name="texthint_username">Web Username</string>
+    <string name="texthint_password">Web Password</string>
+
+    <string name="edit_host_initial">https://</string>
+    <string name="button_text">Sync</string>
+
+    <string name="notice_initializing">Initializing…</string>
+    <string name="notice_connecting_to_host">Connecting to host…</string>
+    <string name="notice_receiving_filelist">Receiving Host\'s File list…</string>
+    <string name="notice_compare_to_filelist">Compare device\'s Files and Host\'s files…</string>
+    <string name="notice_delete_files">Delete files…</string>
+    <string name="notice_downloading_files">Downloading files…</string>
+    <string name="notice_done">Done.</string>
+    <string name="notice_failed_because_no_permission">Permission required.</string>
+    <string name="notice_failed_connect_to_host">Failed connect to host.</string>
+    <string name="notice_failed_download_playlist">Failed to download Playlist file.</string>
+</resources>

@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">MediaSync</string>
+
+    <string name="text_host">호스트</string>
+    <string name="text_username">사용자명</string>
+    <string name="text_password">비밀번호</string>
+
+    <string name="texthint_host">웹 호스트 주소</string>
+    <string name="texthint_username">사용자명</string>
+    <string name="texthint_password">비밀번호</string>
+
+    <string name="edit_host_initial">https://</string>
+    <string name="button_text">동기화</string>
+
+    <string name="notice_initializing">초기화 중…</string>
+    <string name="notice_connecting_to_host">호스트에 연결 중…</string>
+    <string name="notice_receiving_filelist">호스트의 파일 목록을 받아오는 중…</string>
+    <string name="notice_compare_to_filelist">장치의 파일과 호스트의 파일을 비교 중…</string>
+    <string name="notice_delete_files">파일 삭제 중…</string>
+    <string name="notice_downloading_files">파일 다운로드 중…</string>
+    <string name="notice_done">완료.</string>
+    <string name="notice_failed_because_no_permission">권한이 필요함.</string>
+    <string name="notice_failed_connect_to_host">호스트에 연결 실패.</string>
+    <string name="notice_failed_download_playlist">재생목록 파일 다운로드 실패.</string>
+</resources>
