@@ -1,7 +1,8 @@
 package `in`.daram.mediasync
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
-import android.text.Editable
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -11,20 +12,23 @@ import androidx.activity.ComponentActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity(), View.OnClickListener {
-    lateinit var editHost: EditText
-    lateinit var editUsername: EditText
-    lateinit var editPassword: EditText
+    private lateinit var editHost: EditText
+    private lateinit var editUsername: EditText
+    private lateinit var editPassword: EditText
 
-    lateinit var progress: ProgressBar
-    lateinit var textNotice: TextView
-    lateinit var textFile: TextView
-    lateinit var buttonSync: Button
+    private lateinit var progress: ProgressBar
+    private lateinit var textNotice: TextView
+    private lateinit var textFile: TextView
+    private lateinit var buttonSync: Button
+
+    private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        sharedPreferences = getPreferences(Context.MODE_PRIVATE)
 
         requestPermissions(this)
 
@@ -43,6 +47,22 @@ class MainActivity : ComponentActivity(), View.OnClickListener {
         progress.max = 1
         progress.progress = 0
         progress.isIndeterminate = false
+
+        val savedHost = sharedPreferences.getString("HOST", null)
+        if (savedHost != null) {
+            editHost.text.clear()
+            editHost.text.insert(0, savedHost)
+        }
+
+        val savedUsername = sharedPreferences.getString("USERNAME", null)
+        if (savedUsername != null) {
+            editUsername.text.insert(0, savedUsername)
+        }
+
+        val savedPassword = sharedPreferences.getString("PASSWORD", null)
+        if (savedPassword != null) {
+            editPassword.text.insert(0, savedPassword)
+        }
 
         buttonSync.setOnClickListener(this)
     }
@@ -66,6 +86,13 @@ class MainActivity : ComponentActivity(), View.OnClickListener {
         val hostText = editHost.text.toString()
         val usernameText = editUsername.text.toString()
         val passwordText = editPassword.text.toString()
+
+        with (sharedPreferences.edit()) {
+            putString("HOST", hostText)
+            putString("USERNAME", usernameText)
+            putString("PASSWORD", passwordText)
+            apply()
+        }
 
         CoroutineScope(Dispatchers.IO).launch {
             textNotice.text = getString(R.string.notice_connecting_to_host)
