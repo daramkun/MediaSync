@@ -3,6 +3,7 @@ package `in`.daram.mediasync
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -125,7 +126,9 @@ class MainActivity : ComponentActivity(), View.OnClickListener {
                 val musicDirPath = getMusicFolderPath(this@MainActivity) ?: return@launch
                 val fileList = getMusicFolderFiles(this@MainActivity)
 
+                Log.i("MediaSync", "Compare File list for delete local storage...")
                 val deleteList = compareFileListAsync(musicDirPath, fileList, hostText, m3u8List)
+                Log.i("MediaSync", "Compare File list for download from network...")
                 val downloadList = compareFileListAsync(hostText, m3u8List, musicDirPath, fileList)
 
                 runOnUiThread {
@@ -140,7 +143,13 @@ class MainActivity : ComponentActivity(), View.OnClickListener {
                     runOnUiThread {
                         textFile.text = file
                     }
-                    deleteFileAsync(file)
+                    Log.i("MediaSync", "Trying to delete file: $file")
+                    val succeed = deleteFileAsync(file)
+                    if (succeed) {
+                        Log.i("MediaSync", "SUCCEED")
+                    } else {
+                        Log.e("MediaSync", "FAILED")
+                    }
                     runOnUiThread {
                         ++progress.progress;
                     }
@@ -158,11 +167,14 @@ class MainActivity : ComponentActivity(), View.OnClickListener {
                     runOnUiThread {
                         textFile.text = file
                     }
+                    Log.i("MediaSync", "Trying to download file: $file")
                     downloadMusicFileAsync(hostText, usernameText, passwordText, file, musicDirPath)
                     runOnUiThread {
                         ++progress.progress;
                     }
                 }
+
+                Log.i("MediaSync", "Done.")
 
                 runOnUiThread {
                     textNotice.text = getString(R.string.notice_done)

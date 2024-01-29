@@ -9,6 +9,7 @@ import android.os.Environment
 import android.os.Environment.DIRECTORY_MUSIC
 import android.os.storage.StorageManager
 import android.util.Base64
+import android.util.Log
 import androidx.core.app.ActivityCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -28,7 +29,7 @@ fun checkPermissions(activity: Activity): Boolean {
     ) == PackageManager.PERMISSION_GRANTED
 }
 
-fun getMusicFolderPath(context: Context): String? {
+fun getMusicFolderPath(context: Context): String {
     val storageService = (context.getSystemService(Context.STORAGE_SERVICE) as StorageManager)
     val storageVolumes = storageService.storageVolumes
 
@@ -41,18 +42,24 @@ fun getMusicFolderPath(context: Context): String? {
     }
 
     val selectedVolume = storageVolumes.first()
-    if (selectedVolume.isPrimary)
+    if (selectedVolume.isPrimary) {
+        Log.i("MediaSync", "No SDCard. Selected Primary Storage")
         return "/storage/self/primary/Music"
+    }
 
     val uuid = selectedVolume.uuid
+    Log.i("MediaSync", "SDCard: \"$uuid\"")
     return "/storage/$uuid/Music"
 }
 
 fun getMusicFolderFiles(context: Context): Array<String> {
-    val path = getMusicFolderPath(context) ?: return arrayOf()
+    val path = getMusicFolderPath(context)
     val root = File(path)
     val result = ArrayList<String>(128)
     enumerateFolderFiles(root, result)
+
+    val count = result.size
+    Log.i("MediaSync", "Total Storage Music file count: $count")
     return result.toTypedArray()
 }
 
@@ -102,6 +109,9 @@ fun compareFileList(host: String, hostFiles: Array<String>, guest: String, guest
             result.add(hostFile)
     }
 
+    val count = result.size
+    Log.i("MediaSync", "Different between Storage files and Network files: $count")
+
     return result.toTypedArray()
 }
 
@@ -109,14 +119,23 @@ suspend fun compareFileListAsync(host: String, hostFiles: Array<String>, guest: 
     return withContext(Dispatchers.IO) { compareFileList(host, hostFiles, guest, guestFiles) }
 }
 
-fun deleteFile(file: String) {
+fun deleteFile(file: String): Boolean {
     val fileObj = File(file)
-    if (fileObj.isFile)
-        fileObj.delete()
+    if (fileObj.isFile) {
+        try {
+            fileObj.delete()
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            Log.e("MediaSync", "File remove failed: $file")
+            return false
+        }
+    }
+
+    return true
 }
 
-suspend fun deleteFileAsync(file: String) {
-    return withContext(Dispatchers.IO) { deleteFile(file) }
+suspend fun deleteFileAsync(file: String): Boolean {
+    return withContext(Dispatchers.IO) { return@withContext deleteFile(file) }
 }
 
 fun connectToMusicListFile(host: String, username: String, password: String): HttpURLConnection? {
@@ -148,6 +167,9 @@ fun downloadMusicListFile(host: String, connection: HttpURLConnection): Array<St
         files.add("$host/$content")
     }
 
+    val count = files.size
+    Log.i("MediaSync", "Network Audio Library file count: $count")
+
     return files.toTypedArray()
 }
 
@@ -172,6 +194,10 @@ fun downloadMusicFile(host: String, username: String, password: String, file: St
     localFile.parentFile?.mkdirs()
     if (!localFile.isFile && !localFile.createNewFile())
         return
+    if (localFile.isFile) {
+        localFile.delete()
+        localFile.createNewFile()
+    }
 
     val hostInputStream = connection.inputStream
     val fileOutputStream = localFile.outputStream()
